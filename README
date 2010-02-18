@@ -1,0 +1,65 @@
+Django Dynamic Template Loader
+==============================
+
+There are times when you would like to use a different template based on the value of a HTTP request header. For example, different domain names, different browser types, or even the referring page. The dynamic template loader allows you to specify a separate list of directories in which Django should look for templates, based on a value in the request header.
+
+Installing
+==========
+
+1. Install ``dynamicloader`` in your Python path.
+
+2. Add ``'dynamicloader.middleware.RequestMiddleware',`` into your ``MIDDLEWARE_CLASSES`` setting.
+
+3. Add ``'dynamicloader.loader.load_template_source',`` at the *top* of your ``TEMPLATE_LOADERS`` setting.
+
+4. Create a new setting, ``DYN_TEMPLATE_MAP``, in the following format::
+
+	DYN_TEMPLATE_MAP = {
+	    'HTTP_HEADER1': {
+	        re.compile('value1'): ('/path/to/directory','/path/to/directory2',),
+	        re.compile('value2'): ('/path/to/directory3',)
+	    },
+	    'HTTP_HEADER2': {
+	        re.compile('value1'): ('/path/to/directory4',)
+	    }
+	}
+
+Template Map Examples
+=====================
+
+Domain Name Differences
+***********************
+
+This example allows the override of certain templates based on the domain name or subdomain. In this setup, Django will look in ``/path/to/directory`` first if the ``HTTP_HOST`` includes the value ``www2``.
+::
+
+	DYN_TEMPLATE_MAP = {
+	    'HTTP_HOST': {
+	        re.compile('www2'): ('/path/to/directory',),
+	    },
+	}
+
+
+Browser Differences
+*******************
+
+This example allows the delivery of different templates (or just specific ones) based on the user's browser.
+::
+
+	DYN_TEMPLATE_MAP = {
+	    'HTTP_USER_AGENT': {
+	        re.compile('iPhone|iPod'): ('/path/to/directory',),
+	    },
+	}
+
+Query String Differences
+************************
+
+This example checks the query string to decide which template to use based on a query string (the stuff after a '?' in a URL).
+::
+
+DYN_TEMPLATE_MAP = {
+    'QUERY_STRING': {
+        re.compile('imreallycool=1'): ('/path/to/directory',),
+    },
+}
